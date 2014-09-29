@@ -2,7 +2,7 @@
 if [ ${USER} == "kaendfinger" ]
 then
   cd ~/chromiumos
-  ./build.sh ${BOARD} ${BOARD_ARCH}
+  ./build.sh ${BOARD}
 else
   sudo -u kaendfinger ${0}
 fi
