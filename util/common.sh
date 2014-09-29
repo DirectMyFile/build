@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-source $(dirname ${0})/teamcity.sh
+source util/teamcity.sh
