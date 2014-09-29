@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+
+set -e
+
 if [ ${USER} == "kaendfinger" ]
 then
   cd ~/chromiumos
