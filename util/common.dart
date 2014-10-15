@@ -15,7 +15,7 @@ class TeamCity {
     print("##teamcity[${value} ${keyz.join(' ')}]");
   }
 
-  static dynamic inBlock(String name, action()) {
+  static Future inBlock(String name, action()) {
     var tcBlock = openBlock(name);
     var r = action();
     if (r is Future) {
@@ -50,7 +50,7 @@ class TeamCityBlock {
   String toString() => name;
 }
 
-block(String name, action()) {
+Future block(String name, action()) {
   return TeamCity.inBlock(name, action);
 }
 
@@ -146,10 +146,22 @@ Future script(String path, [List<String> args]) {
 
 File file(String path) => new File(path);
 Directory directory(String path) => new Directory(path);
+
+FileSystemEntity fsEntity(String path) {
+  if (isFile(path)) return file(path);
+  if (isDirectory(path)) return directory(path);
+  if (isLink(path)) return link(path);
+  return null;
+}
+
 bool exists(String path) => FileSystemEntity.typeSync(path) != FileSystemEntityType.NOT_FOUND;
 bool isFile(String path) => FileSystemEntity.isFileSync(path);
 bool isDirectory(String path) => FileSystemEntity.isDirectorySync(path);
-void link(String target, String linkName) => new Link(linkName).createSync(target, recursive: true);
+bool isLink(String path) => FileSystemEntity.isLinkSync(path);
+void symlink(String target, String linkName) => new Link(linkName).createSync(target, recursive: true);
+Link link(String path) => new Link(path);
+void write(String path, String content) => file(path).writeAsStringSync(content);
+void delete(String path) => fsEntity(path).deleteSync();
 
 Future pub(String args) {
   return executeCommand("pub ${args}");
