@@ -5,8 +5,7 @@ import "dart:convert";
 import "dart:io";
 
 class TeamCity {
-  static TeamCityBlock openBlock(String name) =>
-      new TeamCityBlock(name)..open();
+  static TeamCityBlock openBlock(String name) => new TeamCityBlock(name)..open();
 
   static void serviceMessage(String value, Map<String, String> input) {
     var keyz = input.keys.map((it) {
@@ -17,11 +16,11 @@ class TeamCity {
   }
 
   static dynamic inBlock(String name, action()) {
-    var block = openBlock(name);
+    var tcBlock = openBlock(name);
     var r = action();
     if (r is Future) {
       return r.then((_) {
-        block.close();
+        tcBlock.close();
       });
     } else {
       return new Future.value();
@@ -48,6 +47,10 @@ class TeamCityBlock {
 
   @override
   String toString() => name;
+}
+
+block(String name, action()) {
+  return TeamCity.inBlock(name, action);
 }
 
 class HTTP {
@@ -90,7 +93,7 @@ void inheritIO(Process process, {String prefix, bool lineBased: true}) {
       }
       stdout.writeln(data);
     });
-    
+
     process.stderr.transform(UTF8.decoder).transform(new LineSplitter()).listen((String data) {
       if (prefix != null) {
         stderr.write(prefix);
@@ -113,12 +116,12 @@ Future executeCommands(List<String> commands) {
 
     future = future.then((value) {
       bool allowExitCodeOne = false;
-      
+
       if (executable.startsWith("@")) {
         allowExitCodeOne = true;
         executable = executable.substring(1);
       }
-      
+
       return Process.start(executable, split).then((process) {
         inheritIO(process);
 
@@ -131,8 +134,24 @@ Future executeCommands(List<String> commands) {
       });
     });
   }
-  
+
   return future;
+}
+
+Future script(String path, [List<String> args]) {
+  var argz = args != null ? " ${args.join(' ')}" : "";
+  return executeCommand("dart ${path}${argz}");
+}
+
+File file(String path) => new File(path);
+Directory directory(String path) => new Directory(path);
+bool exists(String path) => FileSystemEntity.typeSync(path) != FileSystemEntityType.NOT_FOUND;
+bool isFile(String path) => FileSystemEntity.isFileSync(path);
+bool isDirectory(String path) => FileSystemEntity.isDirectorySync(path);
+void link(String target, String linkName) => new Link(linkName).createSync(target, recursive: true);
+
+Future pub(String args) {
+  return executeCommand("pub ${args}");
 }
 
 Future executeCommand(String command) => executeCommands([command]);
