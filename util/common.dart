@@ -23,6 +23,7 @@ class TeamCity {
         tcBlock.close();
       });
     } else {
+      tcBlock.close();
       return new Future.value();
     }
   }
@@ -35,13 +36,13 @@ class TeamCityBlock {
 
   void open() {
     TeamCity.serviceMessage("blockOpened", {
-      "name": "name"
+      "name": name
     });
   }
 
   void close() {
     TeamCity.serviceMessage("blockClosed", {
-      "name": "name"
+      "name": name
     });
   }
 
